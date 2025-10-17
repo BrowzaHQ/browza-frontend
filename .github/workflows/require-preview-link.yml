@@ -1,0 +1,16 @@
+name: Require Vercel preview URL
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || ''
+            const ok = /https?:\/\/[^\s]+\.vercel\.app/i.test(body)
+            if (!ok) {
+              core.setFailed('Add a Vercel preview URL (.vercel.app) to the PR description.')
+            }

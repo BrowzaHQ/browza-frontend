@@ -1,18 +1,14 @@
 ## Summary
-What changed and why (1–2 lines).
+- What changed (1–2 lines):
 
-## Screens / Loom
-Loom: (2-min max)  
-Screenshots (if any):
+## Preview URL (required)
+Paste your Vercel preview link here:
+https://<your-branch>.vercel.app
 
-## How to test
-1) 
-2) 
-3) 
+## Loom (≤2 min, optional but preferred)
+- Walkthrough: https://www.loom.com/...
 
 ## Checklist
-- [ ] Runs locally with one command; `.env.example` included
-- [ ] README updated (setup + endpoints)
-- [ ] Logs on error; no secrets in logs
-- [ ] Loading/empty/error states (if UI)
-- [ ] Added to Project board; linked to Milestone
+- [ ] I deployed this branch to my personal Vercel (Hobby) and pasted the .vercel.app URL.
+- [ ] I used only `NEXT_PUBLIC_*` envs in my preview.
+- [ ] I tested basic flows (login, dashboard, nav) on the preview.
