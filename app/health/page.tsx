@@ -6,9 +6,10 @@ async function getHealth() {
     const res = await fetch(`${API_BASE}/healthz`, { cache: 'no-store' });
     if (!res.ok) return { error: `HTTP ${res.status}` };
     return res.json();
-  } catch (e) {
-    return { error: e.message || 'Network error' };
-  }
+  } catch (e: unknown) {
+  const message = e instanceof Error ? e.message : 'Network error';
+  return { error: message };
+}
 }
 
 export default async function HealthPage() {
