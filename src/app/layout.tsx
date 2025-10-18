@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import StoreProvider from "./storeProvider";
 import { Providers } from "./provider";
 import Link from "next/link";
 
@@ -27,20 +26,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <StoreProvider>
-          <Providers>
-            <header style={{ marginBottom: 16 }}>
-              <h1 style={{ fontSize: 20, margin: 0 }}>Browza</h1>
-              <nav style={{ marginTop: 8 }}>
-                <Link href="/" style={{ marginRight: 12 }}>
-                  Home
-                </Link>
-                <Link href="/health">Health</Link>
-              </nav>
-            </header>
+        
             {children}
-          </Providers>
-        </StoreProvider>
         <Toaster />
       </body>
     </html>
