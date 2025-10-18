@@ -19,12 +19,11 @@ export default function StatusPage() {
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       const json = await res.json().catch(() => ({}));
       setData(json);
-    } catch (e: any) {
-      setError(e?.message || 'Request failed');
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e: unknown) {
+  const message = e instanceof Error ? e.message : 'Network error';
+  return { error: message };
+}
+
   }
 
   useEffect(() => { load(); }, []);
