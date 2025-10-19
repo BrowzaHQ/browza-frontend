@@ -20,34 +20,14 @@ jobs:
           persist-credentials: false   # avoid github-actions[bot] auth
 
       - name: Mirror to personal (verify then push)
+        
         env:
-          MIRROR_URL_RAW: ${{ secrets.MIRROR_URL }}
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_MAIN }}
         run: |
           set -euo pipefail
+          if [ -z "${HOOK:-}" ]; then
+            echo "No Vercel deploy hook set (VERCEL_DEPLOY_HOOK_MAIN). Skipping."; exit 0; fi
+          echo "Calling Vercel Deploy Hook for main (Preview)…"
+          curl -sS -X POST "$HOOK"
+          echo "Hook called."
 
-          # 1) Skip if secret missing
-          if [ -z "${MIRROR_URL_RAW:-}" ]; then
-            echo "MIRROR_URL is not set; skipping mirror."
-            exit 0
-          fi
-
-          # 2) Remove any auth header injected by checkout
-          git config --global --unset-all http.https://github.com/.extraheader || true
-
-          # 3) Clean the secret: strip CR/LF/quotes/spaces
-          MIRROR_URL=$(printf '%s' "$MIRROR_URL_RAW" | tr -d '\r\n"' | sed -e 's/[[:space:]]//g')
-
-          # 4) Show safe target (token masked)
-          SAFE_URL=$(printf '%s' "$MIRROR_URL" | sed -E 's#https://[^@]+@#https://#')
-          echo "Will mirror to: $SAFE_URL"
-
-          # 5) Reachability check — 404 wrong owner/repo; 401 token perms
-          if ! git ls-remote "$MIRROR_URL" >/dev/null 2>&1; then
-            echo "Cannot reach $SAFE_URL. Check owner/repo spelling, token scopes, and that the repo exists."
-            exit 1
-          fi
-
-          # 6) Force-mirror all refs (branches + tags)
-          git remote remove mirror 2>/dev/null || true
-          git remote add mirror "$MIRROR_URL"
-          git push --mirror mirror
