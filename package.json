@@ -1,4 +1,6 @@
 {
+
+  "engines": { "node": "20.x" },
   "name": "browza-frontend",
   "version": "0.1.0",
   "private": true,
@@ -8,7 +10,6 @@
     "start": "next start",
     "lint": "next lint"
 
-    { "engines": { "node": "20.x" } }
 
   },
   "dependencies": {
