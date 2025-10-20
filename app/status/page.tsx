@@ -18,12 +18,17 @@ export default function StatusPage() {
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="text-2xl font-semibold">Status</h1>
 
-<Link
-  href="/status"
-  className="inline-block rounded-full px-6 py-3 font-medium bg-blue-600 text-white hover:bg-blue-700 mt-8"
->
-  Check Status
-</Link>
+      <ul className="mt-4 space-y-2">
+        {items.map((i) => (
+          <li
+            key={i.label}
+            className="flex items-center justify-between rounded-lg border p-3"
+          >
+            <span>{i.label}</span>
+            <span className="text-sm">{i.status}</span>
+          </li>
+        ))}
+      </ul>
 
       <p className="mt-6 text-sm">
         Back to{" "}
