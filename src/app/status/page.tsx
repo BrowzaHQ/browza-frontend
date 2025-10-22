@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import api from '../../lib/apiClient';
-import toast from 'react-hot-toast';
 
 type Json = Record<string, unknown>;
 
@@ -15,13 +14,15 @@ export default function StatusPage() {
     setLoading(true);
     setError(null);
     try {
-      const json = await api.get('/healthz');
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+      // If external base is present, use that; otherwise call local Next API
+      const path = base ? '/healthz' : '/api/healthz';
+      const json = await api.get(path);
       setData(json);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Network error';
       setError(msg);
       setData(null);
-      toast.error(msg);
     } finally {
       setLoading(false);
     }
