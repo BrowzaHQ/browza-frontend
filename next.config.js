@@ -1,16 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Skip ESLint during Vercel builds for now
-  eslint: { ignoreDuringBuilds: true },
-  env: {
-    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV || 'local',
-    NEXT_PUBLIC_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA || 'local'
-  }
+  // Keep headers/rewrites in vercel.json for now
 };
 
-module.exports = nextConfig; // <-- only one export
 module.exports = nextConfig;
-
-cc303e57dd3d37b3f571bf408dbf84c810d7d516
