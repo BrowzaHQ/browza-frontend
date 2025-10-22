@@ -34,3 +34,13 @@
     "@types/node": "^20.12.7"
   }
 }
+
+{
+  "scripts": {
+    "lint": "next lint"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}
+
