@@ -1,9 +1,9 @@
+// src/app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/apiClient';
-import toast from 'react-hot-toast';
 import { setAuthToken } from '../../lib/auth';
 
 export default function LoginPage() {
@@ -19,20 +19,18 @@ export default function LoginPage() {
     setBusy(true);
     try {
       if (process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true') {
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 400));
         setAuthToken('mock-token');
         router.push('/buyer/dashboard');
         return;
       }
-      const json = await api.post('/auth/login', { email, password });
-      const token = json?.access_token || json?.token;
+      const json: any = await api.post('/auth/login', { email, password });
+      const token = json?.access_token ?? json?.token;
       if (!token) throw new Error('No token in response');
       setAuthToken(token);
       router.push('/buyer/dashboard');
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Login failed';
-      setErr(msg);
-      toast.error(msg);
+    } catch (e: any) {
+      setErr(e?.message || 'Login failed');
     } finally {
       setBusy(false);
     }
@@ -49,15 +47,11 @@ export default function LoginPage() {
         />
         <input
           className="w-full rounded border p-2"
-          type="password" placeholder="Password"
+          type="password" placeholder="Password" minLength={6}
           value={password} onChange={e => setPassword(e.target.value)} required
-          minLength={6}
         />
         {err && <p className="text-sm text-red-600">{err}</p>}
-        <button
-          className="rounded-lg border px-3 py-2 disabled:opacity-50"
-          disabled={busy}
-        >
+        <button className="rounded-lg border px-3 py-2 disabled:opacity-50" disabled={busy}>
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
