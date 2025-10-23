@@ -21,6 +21,7 @@ jobs:
 
       - name: Mirror to personal (verify then push)
 <<<<<<< HEAD
+<<<<<<< HEAD
         env:
           MIRROR_URL_RAW: ${{ secrets.MIRROR_URL }}
         run: |
@@ -53,6 +54,8 @@ jobs:
           git remote add mirror "$MIRROR_URL"
           git push --mirror mirror
 =======
+=======
+>>>>>>> e8a9fc1214a57afeebb87bdfdf7009278c64753b
         
         env:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_MAIN }}
@@ -64,4 +67,7 @@ jobs:
           curl -sS -X POST "$HOOK"
           echo "Hook called."
 
+<<<<<<< HEAD
 >>>>>>> df0b22ad6e080392fc5fef6c378c97e7a852b9f1
+=======
+>>>>>>> e8a9fc1214a57afeebb87bdfdf7009278c64753b

@@ -13,7 +13,10 @@ https://<your-branch>.vercel.app
 - [ ] I used only `NEXT_PUBLIC_*` envs in my preview.
 - [ ] I tested basic flows (login, dashboard, nav) on the preview.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e8a9fc1214a57afeebb87bdfdf7009278c64753b
 # Summary
 Explain the change in 1–2 lines.
 
@@ -48,4 +51,7 @@ Loom: <link> (show what changed + quick walkthrough)
 - [ ] Env uses `NEXT_PUBLIC_API_BASE_URL`
 - [ ] Lint/build pass (CI green)
 - [ ] Reviewers tagged: @Aditya @Ankush
+<<<<<<< HEAD
 >>>>>>> df0b22ad6e080392fc5fef6c378c97e7a852b9f1
+=======
+>>>>>>> e8a9fc1214a57afeebb87bdfdf7009278c64753b
