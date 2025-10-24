@@ -1,0 +1,30 @@
+name: Vercel Staging (main)
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Deploy Staging (Preview) to Vercel
+        id: vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: ./
+      - name: Add Job Summary
+        run: |
+          echo "### 🚧 Staging Preview Ready (main)" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: ${{ steps.vercel.outputs.preview-url }}" >> $GITHUB_STEP_SUMMARY
