@@ -1,30 +1,25 @@
-import { api } from './apiClient';
+// src/lib/auth.ts
+const TOKEN_KEY = "browza_token";
 
-const TOKEN_KEY = 'browza.access';
+/** SSR-safe getters/setters for auth token in localStorage */
+export const getAuthToken = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+};
 
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem(TOKEN_KEY);
-}
+export const setAuthToken = (token: string) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TOKEN_KEY, token);
+};
 
-export function setToken(token: string) {
-  if (typeof window === 'undefined') return;
-  sessionStorage.setItem(TOKEN_KEY, token);
-}
+export const clearAuthToken = () => {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(TOKEN_KEY);
+};
 
-export function clearToken() {
-  if (typeof window === 'undefined') return;
-  sessionStorage.removeItem(TOKEN_KEY);
-}
-
-export function authHeader(): Record<string, string> {
-  const t = getToken();
+/** Convenience header builder */
+export type AuthHeaders = { Authorization?: string };
+export const authHeader = (): AuthHeaders => {
+  const t = getAuthToken();
   return t ? { Authorization: `Bearer ${t}` } : {};
-}
-
-export async function loginReal(email: string, password: string) {
-  return api<{ accessToken: string }>('/auth/login', {
-    method: 'POST',
-    json: { email, password },
-  });
-}
+};
