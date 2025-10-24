@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
   }
   const { page, pageSize, status, q } = parsed.data;
 
-  let items = [...DATA].sort((a, b) =>
-    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
+  const toTs = (iso: string) => new Date(iso).getTime();
+    let items = [...DATA].sort((a, b) => toTs(b.updatedAt) - toTs(a.updatedAt));
   );
 
   if (status) items = items.filter((i) => i.status === status);
