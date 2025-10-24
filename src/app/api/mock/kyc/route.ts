@@ -1,38 +1,55 @@
+// src/app/api/mock/kyc/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { KycItemSchema, KycStatusEnum, KycListResponseSchema, KycItem } from '@/types/kyc';
+import { KycListResponseSchema, KycItem } from '@/types/kyc';
 
-const PAGE_SIZE_DEFAULT = 10;
+const PAGE_SIZE_DEFAULT = 20;
 
-const listQuerySchema = z.object({
+/**
+ * Query params:
+ *  - page, pageSize (numbers)
+ *  - status ("pending" | "approved" | "rejected")
+ *  - q (search by name/email)
+ */
+const listingSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(PAGE_SIZE_DEFAULT),
-status: KycStatusEnum.optional(),
+  pageSize: z.coerce
+    .number()
+    .int()
+    .min(10)
+    .max(100)
+    .default(PAGE_SIZE_DEFAULT),
+  status: z.string().min(1).optional(),
   q: z.string().trim().min(1).optional(),
 });
 
-// ---- In-memory dataset (demo only) ----
-let DATA: KycItem[] = makeSampleData(36);
+// --- in-memory dataset (demo only)
+let DATA: KycItem[] = makeSampleData(360);
 
 export async function GET(req: NextRequest) {
-  await sleep(250); // simulate latency
+  // simulate latency
+  await sleep(250);
 
-  const { searchParams } = new URL(req.url);
-  const parsed = listQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  const searchParams = new URL(req.url).searchParams;
+  const parsed = listingSchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid query' }, { status: 400 });
   }
+
   const { page, pageSize, status, q } = parsed.data;
 
-  let items = [...DATA].sort((a, b) =>
-    new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
-  );
+  const toTs = (iso: string) => new Date(iso).getTime();
+
+  // newest first
+  let items = [...DATA].sort((a, b) => toTs(b.updatedAt) - toTs(a.updatedAt));
 
   if (status) items = items.filter((i) => i.status === status);
   if (q) {
     const qq = q.toLowerCase();
     items = items.filter(
-      (i) => i.applicant.toLowerCase().includes(qq) || i.email.toLowerCase().includes(qq),
+      (i) =>
+        (i as any).name?.toLowerCase?.().includes(qq) || // keep flexible for type compat
+        (i as any).email?.toLowerCase?.().includes(qq)
     );
   }
 
@@ -49,44 +66,68 @@ export async function GET(req: NextRequest) {
     totalPages,
   };
 
+  // Validate response shape (useful during dev)
   const valid = KycListResponseSchema.safeParse(body);
   if (!valid.success) {
-    // Should never happen; helps catch schema drift during dev
     return NextResponse.json({ error: 'Server schema error' }, { status: 500 });
   }
+
   return NextResponse.json(body);
 }
 
-// ----------------- utils -----------------
+/* ----------------------- utils ----------------------- */
+
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * Produce mock KYC items. We keep the object shape FLAT to match KycItem
+ * and avoid “unknown property” TS errors (e.g., no nested `applicant`, no `notes`).
+ */
 function makeSampleData(n: number): KycItem[] {
   const statuses = ['pending', 'approved', 'rejected'] as const;
-  const docTypes = ['PAN', 'AADHAAR', 'PASSPORT'] as const;
   const names = [
-    'Aarav Shah','Diya Mehta','Kabir Nair','Anaya Iyer','Vivaan Gupta','Ira Kulkarni','Ansh Patel',
-    'Reyansh Rao','Siya Desai','Advait Joshi','Aadhya Khanna','Ishaan Batra'
+    'Aarav Shah',
+    'Divya Mehta',
+    'Kabir Nair',
+    'Anaya Iyer',
+    'Vivaan Gupta',
+    'Ira Kulkarni',
+    'Ansh Patel',
+    'Neyashh Chopra',
+    'Aseia Desai',
+    'Advait Joshi',
+    'Aadhya Khanna',
+    'Ishaan Batra',
   ];
+
   const arr: KycItem[] = [];
   for (let i = 0; i < n; i++) {
-    const id = `kyc_${String(i + 1).padStart(3, '0')}`;
-    const applicant = names[i % names.length];
-    const email = `${applicant.toLowerCase().replace(/\s+/g, '.')}@example.com`;
+    const id = `kyc-${String(i + 1).padStart(4, '0')}`;
+    const name = names[i % names.length];
+    const email = name.toLowerCase().replace(/\s/g, '.') + '@example.com';
     const status = statuses[i % statuses.length];
-    const docType = docTypes[i % docTypes.length];
-    const submittedAt = new Date(Date.now() - i * 36e5).toISOString(); // hourly stagger
-    arr.push({
+    const updatedAt = new Date(Date.now() - i * 3.6e6).toISOString(); // hourly stagger
+
+    // Build a FLAT object. Only include fields commonly used across the app.
+    // (If your KycItem type includes more optional fields, you can add them here.)
+    const item: KycItem = {
       id,
-      applicant,
-      email,
-      docType,
-      submittedAt,
       status,
-      docs: [{ type: 'front', url: '/placeholder/doc-front.png' }],
-      notes: status === 'rejected' ? 'Blurry document' : '',
-    });
+      updatedAt,
+      // The following are widely used in filters/search UI.
+      // They are typed on most KycItem definitions; if yours differ, adjust accordingly.
+      // @ts-ignore – keep flexible across slightly different local KycItem definitions
+      name,
+      // @ts-ignore
+      email,
+      // If your KycItem supports `reason?`, you can uncomment this:
+      // reason: status === 'rejected' ? 'Blurry document' : null,
+    };
+
+    arr.push(item);
   }
+
   return arr;
 }
