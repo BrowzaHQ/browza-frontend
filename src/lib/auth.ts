@@ -1,7 +1,14 @@
 // src/lib/auth.ts
 let _token: string | null = null;
 
-export const setAuthToken = (t: string | null) => { _token = t; };
-export const getAuthToken = () => _token;
-export const clearAuth = () => { _token = null; };
-export const isAuthed = () => !!_token;
+export const setAuthToken = (token: string): void => {
+  _token = token;
+};
+
+export const getAuthToken = (): string | null => {
+  return _token;
+};
+
+export const clearAuthToken = (): void => {
+  _token = null;
+};

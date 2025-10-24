@@ -1,26 +1,33 @@
-// src/lib/apiClient.ts
+// src/lib/apiClient.ts (enhanced version)
+import axios, { AxiosError } from 'axios';
 import { getAuthToken } from './auth';
 
-const base = (process.env.NEXT_PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  timeout: 10000,
+});
 
-async function request(path: string, init?: RequestInit) {
-  const headers: Record<string, string> = { ...(init?.headers as any) };
-  const token = getAuthToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${base}${path}`, { cache: 'no-store', ...init, headers });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText || 'Request failed'}`);
-  try { return await res.json(); } catch { return {}; }
-}
+// Request interceptor to attach Authorization header
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-export const api = {
-  get: (p: string, i?: RequestInit) => request(p, { method: 'GET', ...i }),
-  post: (p: string, body?: unknown, i?: RequestInit) =>
-    request(p, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(i?.headers || {}) },
-      body: body ? JSON.stringify(body) : undefined,
-      ...i
-    })
-};
+// Response interceptor for network error detection
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+      console.warn(' API unavailable:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
 
-export default api;
+export default apiClient;
