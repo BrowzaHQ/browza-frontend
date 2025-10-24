@@ -1,14 +1,30 @@
-// src/lib/auth.ts
-let _token: string | null = null;
+import { api } from './apiClient';
 
-export const setAuthToken = (token: string): void => {
-  _token = token;
-};
+const TOKEN_KEY = 'browza.access';
 
-export const getAuthToken = (): string | null => {
-  return _token;
-};
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(TOKEN_KEY);
+}
 
-export const clearAuthToken = (): void => {
-  _token = null;
-};
+export function setToken(token: string) {
+  if (typeof window === 'undefined') return;
+  sessionStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  if (typeof window === 'undefined') return;
+  sessionStorage.removeItem(TOKEN_KEY);
+}
+
+export function authHeader(): Record<string, string> {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+export async function loginReal(email: string, password: string) {
+  return api<{ accessToken: string }>('/auth/login', {
+    method: 'POST',
+    json: { email, password },
+  });
+}
