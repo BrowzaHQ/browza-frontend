@@ -17,7 +17,7 @@ export async function POST(
   const idx = store.DATA.findIndex((i) => i.id === id)
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const updated: KycItem = { ...store.DATA[idx], status: 'approved', notes: reason || '' }
+const updated: KycItem = { ...store.DATA[idx], status: 'approved', reason: reason ?? '' }
   store.DATA[idx] = updated
 
   return NextResponse.json(updated)
