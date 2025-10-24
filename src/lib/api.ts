@@ -1,4 +1,5 @@
 import axios from "axios";
+export * from './apiClient';
 
 interface StatusData {
     ok: boolean;
