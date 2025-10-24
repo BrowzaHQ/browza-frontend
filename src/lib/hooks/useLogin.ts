@@ -1,44 +1,39 @@
-// src/hooks/useLogin.ts (new file)
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { loginUser, LoginCredentials } from '@/lib/api/auth';
-import { setAuthToken } from '@/lib/auth';
+'use client';
+
+import { useState } from 'react';
+import { setToken } from '@/lib/auth';
+import { api } from '@/lib/apiClient';
+
+const USE_MOCK = process.env.NEXT_PUBLIC_ENABLE_MOCK === 'true';
 
 export function useLogin() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  return useMutation({
-    mutationFn: (credentials: LoginCredentials) => loginUser(credentials),
-    onSuccess: (data) => {
-      // Store token in-memory
-      setAuthToken(data.token);
-      
-      // Show appropriate success message
-      const isMock = data.token.startsWith('MOCK_TOKEN_');
-      
-      if (isMock) {
-        toast('⚠️ Login Successful (Mock Mode)', {
-          duration: 5000,
-          style: {
-            background: '#fef3c7',
-            color: '#92400e',
-            border: '1px solid #fbbf24',
-          },
+  async function login(email: string, password: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      let token = 'mock-token';
+      if (!USE_MOCK) {
+        const res = await api<{ accessToken: string }>('/auth/login', {
+          method: 'POST',
+          json: { email, password },
         });
+        token = res.accessToken;
       } else {
-        const message = data.user?.name ? `Welcome back, ${data.user.name}!` : 'Login successful!';
-        toast.success(message);
+        // small delay so the UI shows loading
+        await new Promise((r) => setTimeout(r, 300));
       }
-      
-      // Redirect to protected route
-      setTimeout(() => {
-        router.push('/status');
-      }, 500);
-    },
-    onError: (error: any) => {
-      // Error already handled by global mutation cache
-      console.error('Login error:', error);
-    },
-  });
+      setToken(token);
+      return token;
+    } catch (e: any) {
+      setError(e?.message ?? 'Login failed');
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return { login, loading, error };
 }
