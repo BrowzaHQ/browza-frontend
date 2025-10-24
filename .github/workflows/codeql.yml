@@ -1,0 +1,57 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analyze:
+    name: Analyze (CodeQL)
+    # Skip for PRs from forks (they can't upload artifacts securely anyway)
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: codeql-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # 🔐 Do not upload to Code scanning for private repo w/o GHAS.
+      # We write SARIF files to ./results and attach them instead.
+      - name: Perform CodeQL Analysis
+        id: analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
+          upload: false
+          output: results
+
+      - name: Upload SARIF as artifact (private repos)
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: results/**/*.sarif
+          retention-days: 7
+          if-no-files-found: warn
