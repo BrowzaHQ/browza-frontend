@@ -1,4 +1,5 @@
 // src/types/kyc.ts
+
 import { z } from "zod";
 
 /** Status enum shared by UI and mock API */
