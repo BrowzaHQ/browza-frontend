@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { KycItemSchema, KycItem } from '@/types/kyc';
+import { KycItem } from '@/types/kyc';
 
 const store = getStore();
 
-export async function POST(req: NextRequest, context: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
   await sleep(250);
-  const id = context.params.id;
+  const id = params.id;
 
   const body = await req.json().catch(() => ({}));
   const parsed = z.object({ reason: z.string().min(2, 'Reason required') }).safeParse(body);
@@ -33,5 +33,4 @@ function getStore() {
   // @ts-ignore
   return globalThis.__KYC_STORE__ as { DATA: KycItem[] };
 }
-
 function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
