@@ -1,27 +1,18 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import Providers from './providers';
+import type { Metadata } from "next";
+import "./globals.css";
+import Toaster from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Browza',
-  description: 'Buyer Web (Staging)',
+  title: "Browza",
+  description: "Browza app",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen font-sans antialiased">
-        <header className="border-b">
-          <nav className="container mx-auto flex gap-4 p-4">
-  <a href="/" className="underline">Home</a>
-  <a href="/status" className="underline">Status</a>
-  <a href="/health" className="underline">Health</a>
-  <a href="/login" className="underline">Login</a>
-</nav>
-        </header>
-        <main className="container mx-auto p-4">
-          <Providers>{children}</Providers>
-        </main>
+      <body className="min-h-dvh bg-[#0B0F19] text-gray-100">
+        {children}
+        <Toaster />
       </body>
     </html>
   );
