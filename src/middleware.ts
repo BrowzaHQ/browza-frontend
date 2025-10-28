@@ -1,30 +1,39 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// NOTE: For MVP we read a plain cookie `role` set on login.
-// Replace with your secure backend session cookie logic later.
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
+  const pathname = url.pathname;
   const role = req.cookies.get("role")?.value as "buyer" | "admin" | undefined;
 
-  // Unauthed → send to /login
-  if (!role && !url.pathname.startsWith("/login")) {
+  // Not logged in → block everything except public routes
+  const publicPaths = ["/login", "/favicon.ico", "/assets"];
+  const isPublic = publicPaths.some((p) => pathname === p || pathname.startsWith(p));
+
+  if (!role && !isPublic) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Basic role routing guards
-  if (role === "buyer" && url.pathname.startsWith("/admin")) {
+  // Already logged in → keep them out of /login
+  if (role && pathname === "/login") {
+    url.pathname = role === "admin" ? "/admin" : "/buyer";
+    return NextResponse.redirect(url);
+  }
+
+  // Basic role guards
+  if (role === "buyer" && pathname.startsWith("/admin")) {
     url.pathname = "/buyer";
     return NextResponse.redirect(url);
   }
-  if (role === "admin" && url.pathname.startsWith("/buyer")) {
+  if (role === "admin" && pathname.startsWith("/buyer")) {
     url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next|assets|favicon.ico|api).*)"],
+  matcher: ["/((?!_next|api|favicon.ico|assets).*)"],
 };
