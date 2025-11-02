@@ -1,14 +1,24 @@
 name: Vercel Staging (main)
+
 on:
   push:
-    branches: [main]
+    branches: [main]     # auto-runs whenever main updates
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Pull project settings + envs from Vercel (Preview env)
       - name: Pull Vercel config (preview)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -16,6 +26,7 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
         run: npx -y vercel@latest pull --yes --environment=preview
 
+      # Build locally on the runner (so we can deploy a prebuilt artifact)
       - name: Build
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -23,9 +34,18 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
         run: npx -y vercel@latest build
 
-      - name: Deploy (prebuilt)
+      # Deploy the prebuilt artifact as a Preview deployment
+      - name: Deploy (prebuilt) to Preview
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
         run: npx -y vercel@latest deploy --prebuilt --target=preview
+
+      # OPTIONAL: if you want main to publish a Production deployment instead, replace the previous step with:
+      # - name: Deploy (prebuilt) to Production
+      #   env:
+      #     VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      #     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      #   run: npx -y vercel@latest deploy --prebuilt --prod
