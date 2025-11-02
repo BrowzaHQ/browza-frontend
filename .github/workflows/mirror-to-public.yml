@@ -16,6 +16,7 @@ jobs:
         run: |
           test -n "${{ secrets.MIRROR_TOKEN }}" || { echo "MIRROR_TOKEN missing"; exit 1; }
 
+      # Checkout the PR head commit safely (from fork or same repo)
       - name: Checkout PR head safely
         uses: actions/checkout@v4
         with:
@@ -24,16 +25,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # Ensure token can read the mirror
       - name: Token can read mirror?
         env:
           MIRROR_URL: https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/BrowzaHQ/browza-frontend-preview.git
         run: |
           git ls-remote "$MIRROR_URL" >/dev/null && echo "Can read ✅" || { echo "Cannot read ❌"; exit 1; }
 
-      # ⬇️ Remove CI/Actions files so the push doesn't try to add workflows on the public repo
+      # Strip CI files so we don't push workflows to the public repo
       - name: Strip CI files for public mirror
         run: |
-          rm -rf .github/workflows .github/actions .github/dependabot.yml .github/codeql.yml .github/*.yml
+          rm -rf .github/workflows .github/actions .github/dependabot.yml .github/*.yml
           git config user.name "browza-bot"
           git config user.email "bot@browza.in"
           git add -A
