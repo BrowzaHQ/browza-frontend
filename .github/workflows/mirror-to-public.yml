@@ -12,7 +12,16 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
-      # IMPORTANT: use the base repo's workflow (safe), but check out the PR's HEAD commit
+      # sanity check: make sure the secret is actually available
+      - name: Check secret presence
+        run: |
+          if [ -z "${{ secrets.MIRROR_TOKEN }}" ]; then
+            echo "MIRROR_TOKEN is MISSING. Fix Secrets/Token/SSO."; exit 1
+          else
+            echo "MIRROR_TOKEN present ✅"
+          fi
+
+      # Checkout the PR's HEAD commit safely (from the fork if needed)
       - name: Checkout PR head safely
         uses: actions/checkout@v4
         with:
