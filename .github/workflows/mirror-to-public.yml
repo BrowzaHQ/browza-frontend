@@ -1,10 +1,13 @@
 name: Mirror PR -> Public Preview Repo
+
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
+
 permissions:
   contents: read
   pull-requests: read
+
 jobs:
   mirror:
     runs-on: ubuntu-latest
@@ -12,6 +15,8 @@ jobs:
       - name: Check secret presence
         run: |
           test -n "${{ secrets.MIRROR_TOKEN }}" || { echo "MIRROR_TOKEN missing"; exit 1; }
+
+      # Checkout the PR head commit safely (from fork or same repo)
       - name: Checkout PR head safely
         uses: actions/checkout@v4
         with:
@@ -19,12 +24,27 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: false
+
+      # Ensure token can read the mirror
+      - name: Token can read mirror?
+        env:
+          MIRROR_URL: https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/BrowzaHQ/browza-frontend-preview.git
+        run: |
+          git ls-remote "$MIRROR_URL" >/dev/null && echo "Can read ✅" || { echo "Cannot read ❌"; exit 1; }
+
+      # Strip CI files so we don't push workflows to the public repo
+      - name: Strip CI files for public mirror
+        run: |
+          rm -rf .github/workflows .github/actions .github/dependabot.yml .github/*.yml
+          git config user.name "browza-bot"
+          git config user.email "bot@browza.in"
+          git add -A
+          git commit -m "mirror: strip CI workflows for public preview" || echo "Nothing to strip"
+
       - name: Push branch to public mirror
         env:
           MIRROR_URL: https://x-access-token:${{ secrets.MIRROR_TOKEN }}@github.com/BrowzaHQ/browza-frontend-preview.git
           BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          git config user.name "browza-bot"
-          git config user.email "bot@browza.in"
           git remote add mirror "$MIRROR_URL"
-          git push --force mirror "HEAD:refs/heads/$BRANCH"
+          git push --force mirror HEAD:refs/heads/$BRANCH
