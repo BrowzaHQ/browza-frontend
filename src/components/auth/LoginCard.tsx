@@ -11,14 +11,26 @@ import Button from "@/components/ui/button";
 import { useSession } from "@/stores/useSession";
 import BrowzaLogo from "@/components/icons/BrowzaLogo";
 
-// Optional (icons). If you didn't add the package, comment these and the <CheckCircle/> usage below.
+// Optional (icons). If you didn't add the package, this fallback SVG is used.
 let CheckCircle: any = (props: any) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" {...props}>
-    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
   </svg>
 );
-try { CheckCircle = require("lucide-react").CheckCircle; } catch {}
+try {
+  CheckCircle = require("lucide-react").CheckCircle;
+} catch {}
+
+// ---------------- Demo toggle & users (inline; no extra file needed) -------------
+const DEMO_ENABLED =
+  (process.env.NEXT_PUBLIC_DEMO_LOGIN || "").toLowerCase() === "true";
+
+const DEMO_USERS: Record<string, { role: "buyer" | "admin" }> = {
+  "buyer@demo.browza": { role: "buyer" },
+  "admin@demo.browza": { role: "admin" },
+};
+// -------------------------------------------------------------------------------
 
 type LoginResp = { userId: string; email: string; role: "buyer" | "admin" };
 
@@ -42,6 +54,7 @@ export default function LoginCard() {
   const [password, setPassword] = useState("");
   const [showPasswordError, setShowPasswordError] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const { toast } = useToast();
   const router = useRouter();
   const setSession = useSession((s) => s.setSession);
@@ -72,16 +85,21 @@ export default function LoginCard() {
     setLoading(true);
 
     try {
+      // If your backend expects {email, password}, send that:
       const data = await api<LoginResp>("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({ email, password: pwd }),
       });
-      // simple helper cookie so middleware can redirect
+
       document.cookie = `role=${data.role}; path=/; max-age=${60 * 60 * 24 * 7};`;
       setSession({ userId: data.userId, email: data.email, role: data.role });
       router.replace(data.role === "admin" ? "/admin" : "/buyer");
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Login failed", description: err?.message || "Try again." });
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: err?.message || "Try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -95,7 +113,6 @@ export default function LoginCard() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f3a5d] to-[#0e326c]" />
           <CardContent className="relative h-full p-8 text-indigo-50">
             <div className="flex items-center gap-3">
-              {/* Simple round logo mark */}
               <div className="grid h-9 w-9 place-items-center rounded-full bg-indigo-400/20 ring-1 ring-white/20">
                 <BrowzaLogo />
               </div>
