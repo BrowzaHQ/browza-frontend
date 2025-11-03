@@ -34,7 +34,7 @@ const DEMO_USERS: Record<string, { role: "buyer" | "admin" }> = {
 
 type LoginResp = { userId: string; email: string; role: "buyer" | "admin" };
 
-// Password validation helper (matches your UI checks)
+// Password validation helper
 function validatePassword(password: string) {
   const checks = {
     minLength: password.length >= 8,
@@ -43,7 +43,9 @@ function validatePassword(password: string) {
     hasNumber: /[0-9]/.test(password),
     hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
   };
-  const isValid = Object.values(checks).every(Boolean);
+
+  const isValid = Object.values(checks).every(check => check);
+  
   return { checks, isValid };
 }
 
@@ -69,42 +71,19 @@ export default function LoginCard() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    const email = identifier.trim().toLowerCase();
-    const pwd = password;
-
-    // 0) DEMO BYPASS (works when NEXT_PUBLIC_DEMO_LOGIN=true)
-    if (DEMO_ENABLED && DEMO_USERS[email]) {
-      if (!validatePassword(pwd).isValid) {
-        setShowPasswordError(true);
-        toast({
-          variant: "destructive",
-          title: "Invalid password",
-          description: "Please meet all password requirements",
-        });
-        return;
-      }
-      const role = DEMO_USERS[email].role;
-      // simple cookie + store session (matches your guard/middleware)
-      document.cookie = `role=${role}; path=/; max-age=${60 * 60 * 24 * 7};`;
-      setSession({ userId: "demo", email, role });
-      router.replace(role === "admin" ? "/admin" : "/buyer");
-      return; // no network call in demo mode
-    }
-
-    // 1) REAL VALIDATION (when demo is off)
+    
     if (!isValid) {
       setShowPasswordError(true);
-      toast({
-        variant: "destructive",
-        title: "Invalid password",
-        description: "Please meet all password requirements",
+      toast({ 
+        variant: "destructive", 
+        title: "Invalid password", 
+        description: "Please meet all password requirements" 
       });
       return;
     }
 
-    // 2) REAL API CALL (kept as fallback)
     setLoading(true);
+
     try {
       // If your backend expects {email, password}, send that:
       const data = await api<LoginResp>("/auth/login", {
@@ -195,21 +174,29 @@ export default function LoginCard() {
                   onFocus={() => setShowPasswordError(true)}
                   required
                 />
-
+                
                 {/* Password validation messages */}
                 {showPasswordError && password.length > 0 && (
                   <div className="space-y-1 pt-0.5">
                     {!checks.minLength && (
-                      <p className="text-sm text-red-600">Password must be at least 8 characters</p>
+                      <p className="text-sm text-red-600">
+                        Password must be at least 8 characters
+                      </p>
                     )}
                     {!checks.hasLowercase && (
-                      <p className="text-sm text-red-600">Must contain at least one lowercase letter</p>
+                      <p className="text-sm text-red-600">
+                        Must contain at least one lowercase letter
+                      </p>
                     )}
                     {!checks.hasUppercase && (
-                      <p className="text-sm text-red-600">Must contain at least one uppercase letter</p>
+                      <p className="text-sm text-red-600">
+                        Must contain at least one uppercase letter
+                      </p>
                     )}
                     {!checks.hasNumber && (
-                      <p className="text-sm text-red-600">Must contain at least one number</p>
+                      <p className="text-sm text-red-600">
+                        Must contain at least one number
+                      </p>
                     )}
                     {!checks.hasSpecialChar && (
                       <p className="text-sm text-red-600">
@@ -220,15 +207,15 @@ export default function LoginCard() {
                 )}
               </div>
 
-              <Button type="submit" disabled={loading} className="mt-2 w-full bg-black hover:bg-black">
+        <Button type="submit" disabled={loading} className="mt-2 w-full bg-black hover:bg-black">
                 <span className="flex items-center justify-center gap-2">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" strokeWidth="2" />
-                    <line x1="12" y1="18" x2="12.01" y2="18" strokeWidth="2" strokeLinecap="round" />
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" strokeWidth="2"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
-                  {!loading ? "Sign in" : "Please wait…"}
+                  {!loading ? "Send OTP" : "Please wait…"}
                 </span>
-              </Button>
+              </Button>      
             </form>
           </div>
         </CardContent>

@@ -2,33 +2,52 @@ name: Vercel Staging (main)
 
 on:
   push:
-    branches: [ main ]
-
-permissions:
-  contents: read
-  pull-requests: write   # optional
+    branches: [main]
 
 jobs:
-  staging:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Deploy Staging (Preview) to Vercel
-        id: vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: ./
-          github-comment: false     # 👈 prevents the failing comment step on push-to-main
-
-      - name: Add Job Summary
+      # Make sure all three secrets are present (fast fail with a clear message)
+      - name: Sanity check Vercel secrets
         run: |
-          echo "### 🚧 Staging Preview Ready (main)" >> $GITHUB_STEP_SUMMARY
-          echo "- URL: ${{ steps.vercel.outputs.preview-url }}" >> $GITHUB_STEP_SUMMARY
+          test -n "${{ secrets.VERCEL_PROJECT_ID }}" || (echo "VERCEL_PROJECT_ID missing" && exit 1)
+          test -n "${{ secrets.VERCEL_ORG_ID }}"     || (echo "VERCEL_ORG_ID missing" && exit 1)
+          test -n "${{ secrets.VERCEL_TOKEN }}"      || (echo "VERCEL_TOKEN missing" && exit 1)
+
+      # Pull project settings + preview envs from Vercel
+      - name: Pull Vercel config (preview)
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: npx -y vercel@latest pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Build locally on the runner
+      - name: Build
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: npx -y vercel@latest build --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Deploy the prebuilt artifact as a Preview deployment
+      - name: Deploy (prebuilt) to Preview
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: npx -y vercel@latest deploy --prebuilt --target=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # If you want main to go to Production instead, replace the previous step with:
+      # - name: Deploy (prebuilt) to Production
+      #   env:
+      #     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      #   run: npx -y vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
