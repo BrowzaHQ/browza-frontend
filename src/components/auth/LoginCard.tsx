@@ -199,7 +199,7 @@ export default function LoginCard() {
                     {!checks.hasLowercase && <p className="text-sm text-red-600">Must contain at least one lowercase letter</p>}
                     {!checks.hasUppercase && <p className="text-sm text-red-600">Must contain at least one uppercase letter</p>}
                     {!checks.hasNumber && <p className="text-sm text-red-600">Must contain at least one number</p>}
-                    {!checks.hasSpecialChar && <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>}
+                    {!checks.hasSpecial && <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>}
                   </div>
                 )}
               </div>
