@@ -1,6 +1,6 @@
 // src/components/ui/Billing.tsx
 import * as React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import InsightsCard from "./InsightsCard";
@@ -58,9 +58,9 @@ export function Billing() {
         {/* Account balance card */}
         <Card className="md:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
+            <div className="text-sm font-medium text-muted-foreground">
               Account balance
-            </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <div className="text-3xl font-semibold tracking-tight">
@@ -93,7 +93,7 @@ export function Billing() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <div>
-            <CardTitle>GST Invoices</CardTitle>
+            <div className="text-base font-semibold">GST Invoices</div>
             <p className="text-sm text-muted-foreground">
               Shows last 0–10 rows (mock). Paginated client-side.
             </p>
