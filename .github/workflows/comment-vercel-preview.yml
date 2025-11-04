@@ -1,48 +1,19 @@
-name: Comment Vercel Preview URL
+# .github/workflows/frontend-preview.yml
+name: Vercel – browza-frontend
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
-
-permissions:
-  pull-requests: write
-  contents: read
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
 
 jobs:
-  comment-url:
+  preview:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for Vercel preview
-        id: wait
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
-          BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: |
-          for i in {1..30}; do
-            resp=$(curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
-              "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&target=preview&meta-githubCommitRef=$BRANCH&limit=1")
-            url=$(echo "$resp" | jq -r '.deployments[0].url // empty')
-            state=$(echo "$resp" | jq -r '.deployments[0].state // empty')
-            if [ -n "$url" ] && [ "$state" = "READY" ]; then
-              echo "url=https://$url" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-            sleep 10
-          done
-          exit 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Comment link on PR
-        if: steps.wait.outputs.url
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          URL: ${{ steps.wait.outputs.url }}
-        run: |
-          body="Vercel Preview (public mirror): $URL"
-          jq -n --arg body "$body" '{body:$body}' > body.json
-          curl -sS -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d @body.json \
-            "${{ github.api_url }}/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
+      # build/publish to your public mirror like you’re already doing
+      # ...
