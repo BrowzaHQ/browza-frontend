@@ -53,21 +53,7 @@ function validatePassword(password: string) {
   };
   const isValid = Object.values(checks).every(Boolean);
   return { checks, isValid };
-}
 
-// Password validation helper
-function validatePassword(password: string) {
-  const checks = {
-    minLength: password.length >= 8,
-    hasLowercase: /[a-z]/.test(password),
-    hasUppercase: /[A-Z]/.test(password),
-    hasNumber: /[0-9]/.test(password),
-    hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
-  };
-
-  const isValid = Object.values(checks).every(check => check);
-  
-  return { checks, isValid };
 }
 
 export default function LoginCard() {
