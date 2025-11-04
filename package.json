@@ -20,7 +20,11 @@
 
     "build": "next build",
 
-    "start": "next start"
+    "start": "next start",
+
+    "build": "tsc -p tsconfig.json",
+
+    "start": "node dist/index.js"
 
   },
 
@@ -70,6 +74,14 @@
 
   "devDependencies": {
 
+    "typescript": "^5.0.0",
+
+    "@types/node": "^20.0.0",
+
+    "@types/express": "^4.17.0",
+
+    "@types/jsonwebtoken": "^9.0.0",
+    
     "@types/node": "^20.12.7",
 
     "@types/react": "^18.2.66",
