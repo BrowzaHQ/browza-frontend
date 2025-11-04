@@ -11,20 +11,16 @@ import Button from "@/components/ui/button";
 import { useSession } from "@/stores/useSession";
 import BrowzaLogo from "@/components/icons/BrowzaLogo";
 
-// Optional (icons). If you didn't add the package, this fallback SVG is used.
 let CheckCircle: any = (props: any) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" {...props}>
-    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+    <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
-try {
-  CheckCircle = require("lucide-react").CheckCircle;
-} catch {}
+try { CheckCircle = require("lucide-react").CheckCircle; } catch {}
 
 type LoginResp = { userId: string; email: string; role: "buyer" | "admin" };
 
-// Password validation helper
 function validatePassword(password: string) {
   const checks = {
     minLength: password.length >= 8,
@@ -71,15 +67,12 @@ export default function LoginCard() {
     }
 
     setLoading(true);
-
     try {
       const email = (identifier || "").trim().toLowerCase();
-      const payload = { email, password };
-
       const data = await api<LoginResp>("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email, password }),
       });
 
       document.cookie = `role=${data.role}; path=/; max-age=${60 * 60 * 24 * 7};`;
@@ -99,7 +92,6 @@ export default function LoginCard() {
   return (
     <Card className="w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* LEFT: Brand / Benefits panel */}
         <div className="relative hidden md:block">
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f3a5d] to-[#0e326c]" />
           <CardContent className="relative h-full p-8 text-indigo-50">
@@ -135,7 +127,6 @@ export default function LoginCard() {
           </CardContent>
         </div>
 
-        {/* RIGHT: Form */}
         <CardContent className="p-8">
           <div className="mx-auto w-full max-w-md">
             <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
@@ -172,7 +163,9 @@ export default function LoginCard() {
                     {!checks.hasLowercase && <p className="text-sm text-red-600">Must contain at least one lowercase letter</p>}
                     {!checks.hasUppercase && <p className="text-sm text-red-600">Must contain at least one uppercase letter</p>}
                     {!checks.hasNumber && <p className="text-sm text-red-600">Must contain at least one number</p>}
-                    {!checks.hasSpecialChar && <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>}
+                    {!checks.hasSpecialChar && (
+                      <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>
+                    )}
                   </div>
                 )}
               </div>
