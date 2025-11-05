@@ -30,9 +30,7 @@ export const orgProfileSchema = z.object({
   
   city: z.string().min(1, 'City is required'),
   
-  state: z.enum(INDIAN_STATES, {
-    errorMap: () => ({ message: 'Please select a valid state' })
-  }),
+  state: z.enum(INDIAN_STATES).describe('State selection'),
   
   pin: z.string()
     .regex(/^[1-9][0-9]{5}$/, 'PIN must be 6 digits starting with 1-9'),
