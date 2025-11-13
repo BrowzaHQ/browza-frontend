@@ -14,13 +14,15 @@
 
   "scripts": {
 
-    "lint": "next lint",
-
     "dev": "next dev",
 
-    "build": "tsc -p tsconfig.json",
+    "build": "next build",
 
-    "start": "node dist/index.js"
+    "start": "next start",
+
+    "lint": "eslint .",
+
+    "type-check": "tsc -p tsconfig.json --noEmit"
 
   },
 
@@ -82,7 +84,9 @@
 
     "autoprefixer": "^10.4.19",
 
-    "eslint": "^8.57.0",
+    "eslint": "^9.39.1",
+
+    "eslint-config-next": "^16.0.2",
 
     "postcss": "^8.4.38",
 
