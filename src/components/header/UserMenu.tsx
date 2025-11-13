@@ -4,8 +4,7 @@ import { logout } from "@/lib/logout";
 import { useSession } from "@/stores/useSession";
 
 export default function UserMenu() {
-// Read email from the session object; fallback to empty string
-  const email = useSession((s) => s.session?.email ?? "");
+  const email = useSession((s) => s.session?.email);
 
   return (
     <div className="flex items-center gap-3">

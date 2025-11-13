@@ -21,7 +21,6 @@ let CheckCircle: any = (props: any) => (
   </svg>
 );
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   CheckCircle = require("lucide-react").CheckCircle;
 } catch {}
 
