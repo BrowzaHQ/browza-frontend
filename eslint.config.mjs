@@ -1,5 +1,6 @@
-// ESLint v9 flat config for Next.js
-// Updated to use modern ESLint v9 patterns and APIs
+// ESLint 9 flat config format
+// Migrated from .eslintrc.json to support ESLint 9.39.1
+// See: https://eslint.org/docs/latest/use/configure/configuration-files
 import nextConfig from 'eslint-config-next/core-web-vitals';
 
 const config = [
@@ -7,6 +8,7 @@ const config = [
   ...nextConfig,
   // Global ignores for ESLint v9
   {
+    // Files and directories to ignore during linting
     ignores: [
       '.next/**',
       'out/**',
