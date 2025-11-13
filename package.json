@@ -20,9 +20,9 @@
 
     "start": "next start",
 
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
 
     "type-check": "tsc -p tsconfig.json --noEmit"
 
@@ -90,7 +90,7 @@
 
     "autoprefixer": "^10.4.19",
 
-    "eslint": "^9.39.1",
+    "eslint": "9.39.1",
 
     "eslint-config-next": "^16.0.2",
 
