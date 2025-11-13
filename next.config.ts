@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Skip ESLint during Vercel builds for now
-  eslint: { ignoreDuringBuilds: true },
+  // Note: eslint.ignoreDuringBuilds option removed - deprecated in Next.js 16
+  // ESLint 9 is now configured via eslint.config.mjs (flat config)
+  // To skip ESLint during builds, use: SKIP_ENV_VALIDATION=1 or configure in CI
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
