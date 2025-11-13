@@ -20,9 +20,9 @@
 
     "start": "next start",
 
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
 
     "type-check": "tsc -p tsconfig.json --noEmit"
 
@@ -84,9 +84,9 @@
 
     "@types/react-dom": "18.3.7",
 
-    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
 
-    "@typescript-eslint/parser": "^8.46.0",
+    "@typescript-eslint/parser": "^8.0.0",
 
     "autoprefixer": "^10.4.19",
 
@@ -99,8 +99,6 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
 
     "eslint-plugin-react": "^7.32.0",
-
-    "eslint-plugin-react-hooks": "^7.0.0",
 
     "postcss": "^8.4.38",
 
