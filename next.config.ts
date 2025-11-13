@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Skip ESLint during Vercel builds for now
-  eslint: { ignoreDuringBuilds: true },
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
