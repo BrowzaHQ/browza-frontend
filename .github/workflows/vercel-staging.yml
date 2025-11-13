@@ -17,6 +17,15 @@ jobs:
           node-version: '18'
           cache: npm
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
       # Make sure all three secrets are present (fast fail with a clear message)
       - name: Sanity check Vercel secrets
         run: |
