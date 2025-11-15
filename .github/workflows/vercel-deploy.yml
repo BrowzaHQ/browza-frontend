@@ -1,0 +1,51 @@
+name: Build and Deploy to Vercel
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Install & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy to Vercel
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@33
+
+      - name: Deploy to Vercel (preview for PRs, production for pushes to main)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          # Replace 'BrowzaHQ' with your exact Vercel team slug if it differs
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Running Vercel preview deployment for PR..."
+            vercel --token "$VERCEL_TOKEN" --confirm --scope BrowzaHQ --prod=false
+          else
+            echo "Running Vercel production deployment for push to main..."
+            vercel --token "$VERCEL_TOKEN" --confirm --scope BrowzaHQ --prod
+          fi
