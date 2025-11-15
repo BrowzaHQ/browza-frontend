@@ -1,6 +1,5 @@
 "use client";
 
-import { validatePassword } from "@/lib/password";
 import * as React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,6 +41,19 @@ type LoginResp = {
   token?: string;
 };
 
+// Client-side password validation UI helper
+function validatePassword(password: string) {
+  const checks = {
+    minLength: password.length >= 8,
+    hasLowercase: /[a-z]/.test(password),
+    hasUppercase: /[A-Z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+  };
+  const isValid = Object.values(checks).every(Boolean);
+  return { checks, isValid };
+}
+
 export default function LoginCard() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -75,7 +87,6 @@ export default function LoginCard() {
     }
 
     setLoading(true);
-
     try {
       const email = (identifier || "").trim().toLowerCase();
 
@@ -198,7 +209,7 @@ export default function LoginCard() {
                     {!checks.hasLowercase && <p className="text-sm text-red-600">Must contain at least one lowercase letter</p>}
                     {!checks.hasUppercase && <p className="text-sm text-red-600">Must contain at least one uppercase letter</p>}
                     {!checks.hasNumber && <p className="text-sm text-red-600">Must contain at least one number</p>}
-                    {!checks.hasSpecial && <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>}
+                    {!checks.hasSpecialChar && <p className="text-sm text-red-600">Must contain at least one special character (!@#$%^&*)</p>}
                   </div>
                 )}
               </div>
